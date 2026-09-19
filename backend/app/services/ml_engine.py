@@ -50,20 +50,23 @@ class MLEngine:
         return cls._instance
 
     def train_or_load(self):
+        bundled_path = settings.BASE_DIR / "app" / "data" / "ml_models.joblib"
         cache_path = settings.CACHE_DIR / "ml_models.joblib"
-        if cache_path.exists():
-            try:
-                logger.info(f"Loading cached ML models from {cache_path}...")
-                saved = joblib.load(cache_path)
-                self.throughput_model = saved["throughput_model"]
-                self.anomaly_model = saved["anomaly_model"]
-                self.scaler = saved["scaler"]
-                self.shap_explainer = shap.TreeExplainer(self.throughput_model)
-                self.is_trained = True
-                logger.info("ML models loaded successfully from cache.")
-                return
-            except Exception as e:
-                logger.warning(f"Could not load cached models: {e}. Re-training.")
+        
+        for candidate in [bundled_path, cache_path]:
+            if candidate.exists():
+                try:
+                    logger.info(f"Loading cached ML models from {candidate}...")
+                    saved = joblib.load(candidate)
+                    self.throughput_model = saved["throughput_model"]
+                    self.anomaly_model = saved["anomaly_model"]
+                    self.scaler = saved["scaler"]
+                    self.shap_explainer = shap.TreeExplainer(self.throughput_model)
+                    self.is_trained = True
+                    logger.info(f"ML models loaded successfully from {candidate}.")
+                    return
+                except Exception as e:
+                    logger.warning(f"Could not load cached models from {candidate}: {e}. Re-training.")
 
         self._train_models()
 
