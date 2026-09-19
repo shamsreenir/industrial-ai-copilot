@@ -1,5 +1,5 @@
 # INDUSTRIAL AI COPILOT
-### NEURAX HACKATHON 3.0 — DOMAIN 2: AI IN INDUSTRY AND AUTOMATION
+### DOMAIN: AI IN INDUSTRY AND AUTOMATION
 **Problem Statement:** Visual Inspection & Defect Root-Cause Assistant  
 **Production MVP:** Unified Software-Only Industrial Decision-Support System  
 **Evaluation Milestone:** Checkpoint 3 Complete Delivery (100% Requirements Traceability & Verification)

@@ -1,5 +1,5 @@
-# NEURAX Hackathon 3.0 — Comprehensive Requirements Traceability Matrix
-## Domain 2: Visual Inspection & Defect Root-Cause Assistant
+# Comprehensive Requirements Traceability Matrix
+## Domain: Visual Inspection & Defect Root-Cause Assistant
 **Authoritative Local Dataset Path:**  
 `C:\Users\SHAMSREENIR\Downloads\Manufacturing Data Shared Facility - Discrete-Event Simulation\Manufacturing Data Shared Facility - Discrete-Event Simulation`
 

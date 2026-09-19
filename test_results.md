@@ -1,5 +1,5 @@
-# NEURAX Hackathon 3.0 — Automated Test Verification Report
-**Test Suite: Pytest 9.1.1 on Python 3.13.7 (Windows x64)**
+# Industrial AI Copilot — Automated Test Verification Report
+**Test Suite: Pytest 9.1.1 on Python 3.10 (Windows x64)**
 **Execution Result: 17 Passed, 0 Failed (100.0% Pass Rate)**
 
 ## 1. Test Suite Execution Summary

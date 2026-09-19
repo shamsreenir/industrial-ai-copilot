@@ -57,7 +57,7 @@ export default function DataStatusPage({ onNavigateToTab }) {
       <SectionHeader
         code="VIEW #02"
         title="Data Grounding & Readiness Audit"
-        subtitle="Verification of supplied organizer files against NEURAX 3.0 requirements. In strict accordance with Non-Hallucination rules, every capability reflects genuine data availability."
+        subtitle="Verification of supplied data files against production requirements. In strict accordance with Non-Hallucination rules, every capability reflects genuine data availability."
         badge="PHASE 0 VERIFIED GROUNDING"
         badgeVariant="emerald"
       >

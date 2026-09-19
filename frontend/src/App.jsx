@@ -138,7 +138,7 @@ function AppContent({ defaultTab } = {}) {
         <footer className="border-t border-slate-900 bg-slate-950/90 py-4 text-center text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div>
-              NEURAX HACKATHON 3.0 • Domain 2: AI in Industry & Automation • INDUSTRIAL AI COPILOT
+              Domain: AI in Industry & Automation • INDUSTRIAL AI COPILOT
             </div>
             <div className="font-mono text-[11px] text-slate-600">
               Advisory Decision Support • Rockwell Arena Model 3 (605k rows) • Zero Hallucination Mode

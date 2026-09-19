@@ -214,7 +214,7 @@ export default function RequirementsTraceabilityPage({ onNavigateToTab }) {
           </div>
         </div>
         <div className="px-3 py-1 rounded-lg bg-slate-900 border border-white/10 text-xs font-mono text-cyan-400 shrink-0">
-          NEURAX 3.0 Verified
+          Production Certified
         </div>
       </div>
     </div>

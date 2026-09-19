@@ -1,7 +1,7 @@
 # System Architecture: Industrial AI Copilot
 
 **Application:** INDUSTRIAL AI COPILOT  
-**Hackathon:** NEURAX HACKATHON 3.0 — DOMAIN 2: AI IN INDUSTRY AND AUTOMATION  
+**Domain:** AI IN INDUSTRY AND AUTOMATION  
 **Document:** System Architecture & Data Flow Specification  
 
 ---

@@ -1,5 +1,5 @@
 # DATASET AUDIT REPORT: INDUSTRIAL AI COPILOT
-**Hackathon:** NEURAX HACKATHON 3.0 — DOMAIN 2: AI IN INDUSTRY AND AUTOMATION  
+**Domain:** AI IN INDUSTRY AND AUTOMATION  
 **Problem Statement:** Visual Inspection & Defect Root-Cause Assistant  
 **Document Version:** 1.0.0 (Phase 0 Audit Complete)  
 **Date:** 2026-09-19  
