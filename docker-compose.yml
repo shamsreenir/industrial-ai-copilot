@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  industrial-ai-copilot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: industrial_ai_copilot
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - ORGANIZER_DATA_DIR=/data
+    volumes:
+      - "C:\\Users\\SHAMSREENIR\\Downloads\\Manufacturing Data Shared Facility - Discrete-Event Simulation\\Manufacturing Data Shared Facility - Discrete-Event Simulation:/data:ro"
+    restart: unless-stopped

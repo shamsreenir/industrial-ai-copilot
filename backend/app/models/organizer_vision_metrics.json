@@ -1,0 +1,129 @@
+{
+  "model_metadata": {
+    "model_name": "Organizer Manufacturing Surface Classifier",
+    "model_version": "v1.0-mobilenetv3-small",
+    "architecture": "MobileNetV3-Small (Transfer Learning)",
+    "primary_model": true,
+    "dataset_origin": "Organizer Provided Visual Dataset (train/train)",
+    "dataset_root": "C:\\Users\\SHAMSREENIR\\OneDrive\\Desktop\\train\\train",
+    "classes": [
+      "crack",
+      "hole",
+      "normal",
+      "rust",
+      "scratch"
+    ],
+    "num_classes": 5,
+    "total_dataset_images": 12000,
+    "train_samples": 8400,
+    "validation_samples": 1800,
+    "test_samples": 1800,
+    "image_resolution": "256x256 RGB",
+    "evaluation_timestamp": "2026-09-19T19:50:32Z"
+  },
+  "calibration_policy": {
+    "temperature": 0.6728,
+    "accept_threshold": 0.8,
+    "review_threshold": 0.5,
+    "margin_threshold": 0.2,
+    "entropy_threshold": 0.75,
+    "decision_rule": "Prediction with top confidence >= 0.80, top-2 margin >= 0.20, and multi-class Shannon entropy <= 0.75 bits is automatically decided ('ACCEPTABLE' if normal, 'DEFECTIVE' if defect). Confidence < 0.80, margin < 0.20, or entropy > 0.75 bits escalates to 'HUMAN SCRUTINY'."
+  },
+  "test_performance": {
+    "accuracy": 0.9983,
+    "macro_precision": 0.9983,
+    "macro_recall": 0.9983,
+    "macro_f1": 0.9983,
+    "weighted_f1": 0.9983,
+    "false_accept_rate": 0.0,
+    "false_reject_rate": 0.0,
+    "total_defective_tested": 1440,
+    "false_accept_count": 0,
+    "total_normal_tested": 360,
+    "false_reject_count": 0,
+    "per_class_metrics": [
+      {
+        "class_name": "crack",
+        "precision": 0.9972,
+        "recall": 1.0,
+        "f1_score": 0.9986,
+        "test_samples": 360
+      },
+      {
+        "class_name": "hole",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "test_samples": 360
+      },
+      {
+        "class_name": "normal",
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "test_samples": 360
+      },
+      {
+        "class_name": "rust",
+        "precision": 1.0,
+        "recall": 0.9944,
+        "f1_score": 0.9972,
+        "test_samples": 360
+      },
+      {
+        "class_name": "scratch",
+        "precision": 0.9945,
+        "recall": 0.9972,
+        "f1_score": 0.9958,
+        "test_samples": 360
+      }
+    ],
+    "confusion_matrix": {
+      "classes": [
+        "crack",
+        "hole",
+        "normal",
+        "rust",
+        "scratch"
+      ],
+      "matrix": [
+        [
+          360,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          360,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          360,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          358,
+          2
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          359
+        ]
+      ]
+    }
+  },
+  "industrial_notice": "ORGANIZER DATASET EVALUATION: Evaluated strictly on the untouched test split of the organizer manufacturing dataset. Defect Escape Rate (FAR) and False Reject Rate (FRR) are calculated from genuine defective vs normal ground truth. Localization evidence is generated via true Grad-CAM activation heatmaps rather than bounding-box IoU (no bbox labels exist)."
+}

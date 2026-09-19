@@ -1,0 +1,30 @@
+{
+  "dataset_source": "C:\\Users\\SHAMSREENIR\\OneDrive\\Desktop\\train\\train",
+  "total_images_on_disk": 12000,
+  "class_counts_on_disk": {
+    "crack": 2400,
+    "hole": 2400,
+    "normal": 2400,
+    "rust": 2400,
+    "scratch": 2400
+  },
+  "split_counts": {
+    "train": 8400,
+    "validation": 1800,
+    "test": 1800
+  },
+  "zero_leakage_verified": true,
+  "validation_calibration": {
+    "validation_samples": 1800,
+    "validation_accuracy": 0.9994,
+    "optimal_temperature": 0.6728,
+    "accept_threshold": 0.8,
+    "review_threshold": 0.5,
+    "margin_threshold": 0.2,
+    "entropy_threshold": 0.0048,
+    "validation_autonomous_disposition_rate": 0.9994,
+    "validation_false_accepts": 0,
+    "validation_false_rejects": 0,
+    "methodology": "Thresholds calculated strictly via grid sweep on 1,800 validation images targeting 0 FAR/FRR. Final test set remained completely untouched."
+  }
+}

@@ -1,0 +1,324 @@
+{
+  "model_metadata": {
+    "model_architecture": "yolo11n",
+    "weights_file": "yolo_neu_det.pt",
+    "training_dataset": "NEU-DET (Northeastern University Surface Defect Database)",
+    "classes": {
+      "0": "crazing",
+      "1": "inclusion",
+      "2": "patches",
+      "3": "pitted_surface",
+      "4": "rolled_in_scale",
+      "5": "scratches"
+    },
+    "train_samples": 1260,
+    "val_samples": 270,
+    "test_samples": 270,
+    "epochs_completed": 6,
+    "selection_criterion": "Best validation mAP50 checkpoint (early stopping patience=8)"
+  },
+  "validation_calibration": {
+    "optimal_decision_threshold": 0.5,
+    "uncertainty_floor_tau_low": 0.175,
+    "entropy_p90_cutoff": 0.811,
+    "median_confidence": 0.728,
+    "methodology": "Derived empirically on 270 validation images to balance >=95% defect catch rate with boundary margin"
+  },
+  "test_set_performance": {
+    "test_samples": 270,
+    "box_map50": 0.7317,
+    "box_map50_95": 0.4096,
+    "macro_precision": 0.6495,
+    "macro_recall": 0.7075,
+    "macro_f1": 0.6772,
+    "per_class_breakdown": [
+      {
+        "class_id": 0,
+        "class_name": "crazing",
+        "precision": 0.5278,
+        "recall": 0.1807,
+        "f1": 0.2692
+      },
+      {
+        "class_id": 1,
+        "class_name": "inclusion",
+        "precision": 0.6529,
+        "recall": 0.8212,
+        "f1": 0.7275
+      },
+      {
+        "class_id": 2,
+        "class_name": "patches",
+        "precision": 0.7389,
+        "recall": 0.8824,
+        "f1": 0.8043
+      },
+      {
+        "class_id": 3,
+        "class_name": "pitted_surface",
+        "precision": 0.8245,
+        "recall": 0.75,
+        "f1": 0.7855
+      },
+      {
+        "class_id": 4,
+        "class_name": "rolled_in_scale",
+        "precision": 0.5285,
+        "recall": 0.6765,
+        "f1": 0.5934
+      },
+      {
+        "class_id": 5,
+        "class_name": "scratches",
+        "precision": 0.6242,
+        "recall": 0.9342,
+        "f1": 0.7484
+      }
+    ],
+    "confusion_matrix": {
+      "classes": [
+        "crazing",
+        "inclusion",
+        "patches",
+        "pitted_surface",
+        "rolled_in_scale",
+        "scratches",
+        "background"
+      ],
+      "matrix": [
+        [
+          22,
+          0,
+          0,
+          0,
+          0,
+          0,
+          14
+        ],
+        [
+          0,
+          126,
+          0,
+          0,
+          0,
+          0,
+          70
+        ],
+        [
+          0,
+          2,
+          121,
+          0,
+          0,
+          0,
+          39
+        ],
+        [
+          0,
+          0,
+          0,
+          50,
+          0,
+          0,
+          10
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          71,
+          0,
+          66
+        ],
+        [
+          0,
+          2,
+          0,
+          0,
+          0,
+          72,
+          42
+        ],
+        [
+          77,
+          21,
+          15,
+          14,
+          31,
+          4,
+          0
+        ]
+      ]
+    }
+  },
+  "unit_level_evaluation": {
+    "dataset_composition": "100% Defective (0 genuine acceptable baseline plates in NEU-DET)",
+    "decision_rule": "Defective (Reject) if max_conf >= tau, else Acceptable (Accept)",
+    "far_definition": "Defect Escape Rate = Missed Defective Units (FN) / Total Defective Test Units (270)",
+    "frr_status": "Mathematically undefined on NEU-DET alone due to N_acceptable = 0",
+    "far_sweep": [
+      {
+        "threshold": 0.1,
+        "defective_units_tested": 270,
+        "detected_true_positives": 268,
+        "false_accept_missed_defects": 2,
+        "false_accept_rate": 0.0074,
+        "unit_detection_accuracy": 0.9926,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.2,
+        "defective_units_tested": 270,
+        "detected_true_positives": 249,
+        "false_accept_missed_defects": 21,
+        "false_accept_rate": 0.0778,
+        "unit_detection_accuracy": 0.9222,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.3,
+        "defective_units_tested": 270,
+        "detected_true_positives": 232,
+        "false_accept_missed_defects": 38,
+        "false_accept_rate": 0.1407,
+        "unit_detection_accuracy": 0.8593,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.4,
+        "defective_units_tested": 270,
+        "detected_true_positives": 213,
+        "false_accept_missed_defects": 57,
+        "false_accept_rate": 0.2111,
+        "unit_detection_accuracy": 0.7889,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.5,
+        "defective_units_tested": 270,
+        "detected_true_positives": 198,
+        "false_accept_missed_defects": 72,
+        "false_accept_rate": 0.2667,
+        "unit_detection_accuracy": 0.7333,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.6,
+        "defective_units_tested": 270,
+        "detected_true_positives": 178,
+        "false_accept_missed_defects": 92,
+        "false_accept_rate": 0.3407,
+        "unit_detection_accuracy": 0.6593,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.65,
+        "defective_units_tested": 270,
+        "detected_true_positives": 171,
+        "false_accept_missed_defects": 99,
+        "false_accept_rate": 0.3667,
+        "unit_detection_accuracy": 0.6333,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.7,
+        "defective_units_tested": 270,
+        "detected_true_positives": 156,
+        "false_accept_missed_defects": 114,
+        "false_accept_rate": 0.4222,
+        "unit_detection_accuracy": 0.5778,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.75,
+        "defective_units_tested": 270,
+        "detected_true_positives": 137,
+        "false_accept_missed_defects": 133,
+        "false_accept_rate": 0.4926,
+        "unit_detection_accuracy": 0.5074,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.8,
+        "defective_units_tested": 270,
+        "detected_true_positives": 105,
+        "false_accept_missed_defects": 165,
+        "false_accept_rate": 0.6111,
+        "unit_detection_accuracy": 0.3889,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.85,
+        "defective_units_tested": 270,
+        "detected_true_positives": 66,
+        "false_accept_missed_defects": 204,
+        "false_accept_rate": 0.7556,
+        "unit_detection_accuracy": 0.2444,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      },
+      {
+        "threshold": 0.9,
+        "defective_units_tested": 270,
+        "detected_true_positives": 19,
+        "false_accept_missed_defects": 251,
+        "false_accept_rate": 0.9296,
+        "unit_detection_accuracy": 0.0704,
+        "note": "Unit-level defect escape rate (FN/Total Defective). FRR undefined (0 normal plates in NEU-DET)."
+      }
+    ]
+  },
+  "specimen_catalog": [
+    {
+      "id": "crazing_test.jpg",
+      "label": "NEU-DET Test Sample: Crazing",
+      "class_name": "crazing",
+      "test_confidence": 0.674,
+      "is_genuine_test_sample": true
+    },
+    {
+      "id": "inclusion_test.jpg",
+      "label": "NEU-DET Test Sample: Inclusion",
+      "class_name": "inclusion",
+      "test_confidence": 0.908,
+      "is_genuine_test_sample": true
+    },
+    {
+      "id": "patches_test.jpg",
+      "label": "NEU-DET Test Sample: Patches",
+      "class_name": "patches",
+      "test_confidence": 0.956,
+      "is_genuine_test_sample": true
+    },
+    {
+      "id": "pitted_surface_test.jpg",
+      "label": "NEU-DET Test Sample: Pitted Surface",
+      "class_name": "pitted_surface",
+      "test_confidence": 0.943,
+      "is_genuine_test_sample": true
+    },
+    {
+      "id": "rolled_in_scale_test.jpg",
+      "label": "NEU-DET Test Sample: Rolled In Scale",
+      "class_name": "rolled_in_scale",
+      "test_confidence": 0.851,
+      "is_genuine_test_sample": true
+    },
+    {
+      "id": "scratches_test.jpg",
+      "label": "NEU-DET Test Sample: Scratches",
+      "class_name": "scratches",
+      "test_confidence": 0.936,
+      "is_genuine_test_sample": true
+    },
+    {
+      "id": "normal_calibration_surface.png",
+      "label": "Baseline Reference Standard (Flawless Calibration Plate)",
+      "class_name": "normal_surface",
+      "test_confidence": 0.0,
+      "is_genuine_test_sample": false,
+      "disclosure": "Synthesized reference baseline surface. NEU-DET dataset contains 0 genuine normal steel plates."
+    }
+  ],
+  "architectural_notice": "AOI Vision Pipeline (NEU-DET benchmark) operates independently from discrete-event factory simulation (Rockwell Arena Model 3). No fabricated cross-dataset batch keys are assumed."
+}

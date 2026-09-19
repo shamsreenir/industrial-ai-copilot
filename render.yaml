@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: industrial-ai-copilot
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: standard
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DEMO_MODE
+        value: "false"

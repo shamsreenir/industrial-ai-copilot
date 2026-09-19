@@ -1,0 +1,137 @@
+[
+  {
+    "sample_id": "crack_test_sample_1.png",
+    "display_name": "Crack Test #1",
+    "ground_truth_class": "crack",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "crack_01868.png",
+    "relative_path": "crack_test_sample_1.png"
+  },
+  {
+    "sample_id": "crack_test_sample_2.png",
+    "display_name": "Crack Test #2",
+    "ground_truth_class": "crack",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "crack_02200.png",
+    "relative_path": "crack_test_sample_2.png"
+  },
+  {
+    "sample_id": "crack_test_sample_3.png",
+    "display_name": "Crack Test #3",
+    "ground_truth_class": "crack",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "crack_01703.png",
+    "relative_path": "crack_test_sample_3.png"
+  },
+  {
+    "sample_id": "hole_test_sample_1.png",
+    "display_name": "Hole Test #1",
+    "ground_truth_class": "hole",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "hole_01185.png",
+    "relative_path": "hole_test_sample_1.png"
+  },
+  {
+    "sample_id": "hole_test_sample_2.png",
+    "display_name": "Hole Test #2",
+    "ground_truth_class": "hole",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "hole_01265.png",
+    "relative_path": "hole_test_sample_2.png"
+  },
+  {
+    "sample_id": "hole_test_sample_3.png",
+    "display_name": "Hole Test #3",
+    "ground_truth_class": "hole",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "hole_02235.png",
+    "relative_path": "hole_test_sample_3.png"
+  },
+  {
+    "sample_id": "normal_test_sample_1.png",
+    "display_name": "Normal Test #1",
+    "ground_truth_class": "normal",
+    "is_defective": false,
+    "expected_decision": "ACCEPTABLE",
+    "source_file": "normal_01835.png",
+    "relative_path": "normal_test_sample_1.png"
+  },
+  {
+    "sample_id": "normal_test_sample_2.png",
+    "display_name": "Normal Test #2",
+    "ground_truth_class": "normal",
+    "is_defective": false,
+    "expected_decision": "ACCEPTABLE",
+    "source_file": "normal_00572.png",
+    "relative_path": "normal_test_sample_2.png"
+  },
+  {
+    "sample_id": "normal_test_sample_3.png",
+    "display_name": "Normal Test #3",
+    "ground_truth_class": "normal",
+    "is_defective": false,
+    "expected_decision": "ACCEPTABLE",
+    "source_file": "normal_02906.png",
+    "relative_path": "normal_test_sample_3.png"
+  },
+  {
+    "sample_id": "rust_test_sample_1.png",
+    "display_name": "Rust Test #1",
+    "ground_truth_class": "rust",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "rust_00157.png",
+    "relative_path": "rust_test_sample_1.png"
+  },
+  {
+    "sample_id": "rust_test_sample_2.png",
+    "display_name": "Rust Test #2",
+    "ground_truth_class": "rust",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "rust_00568.png",
+    "relative_path": "rust_test_sample_2.png"
+  },
+  {
+    "sample_id": "rust_test_sample_3.png",
+    "display_name": "Rust Test #3",
+    "ground_truth_class": "rust",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "rust_02596.png",
+    "relative_path": "rust_test_sample_3.png"
+  },
+  {
+    "sample_id": "scratch_test_sample_1.png",
+    "display_name": "Scratch Test #1",
+    "ground_truth_class": "scratch",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "scratch_02144.png",
+    "relative_path": "scratch_test_sample_1.png"
+  },
+  {
+    "sample_id": "scratch_test_sample_2.png",
+    "display_name": "Scratch Test #2",
+    "ground_truth_class": "scratch",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "scratch_00870.png",
+    "relative_path": "scratch_test_sample_2.png"
+  },
+  {
+    "sample_id": "scratch_test_sample_3.png",
+    "display_name": "Scratch Test #3",
+    "ground_truth_class": "scratch",
+    "is_defective": true,
+    "expected_decision": "DEFECTIVE",
+    "source_file": "scratch_02462.png",
+    "relative_path": "scratch_test_sample_3.png"
+  }
+]
