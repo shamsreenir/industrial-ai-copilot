@@ -60,8 +60,9 @@ export default function EvidenceExplainabilityPage({ onNavigateToTab }) {
     setSelectedBenchmark(specimenId);
     setBenchmarkLoading(true);
     try {
-      selectSample(specimenId, 'primary', 0.85);
-      await runInspection(null, specimenId, 'primary', 0.85);
+      const mode = specimenId.endsWith('.jpg') ? 'secondary' : 'primary';
+      selectSample(specimenId, mode, 0.85);
+      await runInspection(null, specimenId, mode, 0.85);
     } catch (err) {
       console.error("Benchmark inspection error:", err);
     } finally {

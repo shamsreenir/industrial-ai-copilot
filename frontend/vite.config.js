@@ -15,6 +15,22 @@ export default defineConfig({
         target: 'http://127.0.0.1:8001',
         changeOrigin: true,
         secure: false,
+      },
+      '/assets/organizer_test_gallery': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true,
+      },
+      '/assets/demo_images': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true,
+      },
+      '/assets/heatmaps': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true,
+      },
+      '/assets/uploads': {
+        target: 'http://127.0.0.1:8001',
+        changeOrigin: true,
       }
     }
   }

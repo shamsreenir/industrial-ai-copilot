@@ -15,6 +15,7 @@ from collections import Counter
 import cv2
 import numpy as np
 from PIL import Image
+Image.MAX_IMAGE_PIXELS = None
 
 import torch
 import torch.nn as nn

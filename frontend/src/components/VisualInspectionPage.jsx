@@ -88,8 +88,11 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
   const [secondaryMetrics, setSecondaryMetrics] = useState(null);
 
   const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
   const batchFileInputRef = useRef(null);
+  const batchFolderInputRef = useRef(null);
   const zipFileInputRef = useRef(null);
+  const [batchFolderPath, setBatchFolderPath] = useState('');
 
   // Initial Load: Fetch metrics & gallery samples (NO automatic demo inspection)
   useEffect(() => {
@@ -136,6 +139,53 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
   // =========================================================================
   // SINGLE INSPECTION HANDLERS & DRAG-AND-DROP
   // =========================================================================
+  // Helper to recursively extract image files from dropped files or folders
+  const extractFilesFromDataTransfer = async (dataTransfer) => {
+    const files = [];
+    const items = dataTransfer.items;
+    if (items && items.length > 0 && items[0].webkitGetAsEntry) {
+      const queue = [];
+      for (let i = 0; i < items.length; i++) {
+        const entry = items[i].webkitGetAsEntry();
+        if (entry) queue.push(entry);
+      }
+
+      async function readEntry(entry) {
+        if (entry.isFile) {
+          return new Promise((resolve) => {
+            entry.file((file) => {
+              const ext = file.name.split('.').pop().toLowerCase();
+              if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
+                files.push(file);
+              }
+              resolve();
+            }, () => resolve());
+          });
+        } else if (entry.isDirectory) {
+          const reader = entry.createReader();
+          return new Promise((resolve) => {
+            reader.readEntries(async (entries) => {
+              for (const child of entries) {
+                await readEntry(child);
+              }
+              resolve();
+            }, () => resolve());
+          });
+        }
+      }
+
+      for (const entry of queue) {
+        await readEntry(entry);
+      }
+      return files;
+    }
+
+    return Array.from(dataTransfer.files || []).filter(f => {
+      const ext = f.name.split('.').pop().toLowerCase();
+      return ['png', 'jpg', 'jpeg', 'webp'].includes(ext);
+    });
+  };
+
   const handleSingleFileSelect = (file) => {
     if (!file) return;
     selectFile(file, modelMode, singleThreshold);
@@ -145,6 +195,22 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
     const file = e.target.files?.[0];
     if (!file) return;
     handleSingleFileSelect(file);
+  };
+
+  const handleFolderUpload = (e) => {
+    const rawFiles = Array.from(e.target.files || []);
+    const files = rawFiles.filter(f => {
+      const ext = f.name.split('.').pop().toLowerCase();
+      return ['png', 'jpg', 'jpeg', 'webp'].includes(ext);
+    });
+    if (files.length === 1) {
+      handleSingleFileSelect(files[0]);
+    } else if (files.length > 1) {
+      setBatchFiles(files);
+      setBatchData(null);
+      setBatchError(null);
+      setActiveTab('batch');
+    }
   };
 
   const handleDragOver = (e) => {
@@ -159,13 +225,18 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
     setIsDragging(false);
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    const file = e.dataTransfer?.files?.[0];
-    if (file) {
-      handleSingleFileSelect(file);
+    const files = await extractFilesFromDataTransfer(e.dataTransfer);
+    if (files.length === 1) {
+      handleSingleFileSelect(files[0]);
+    } else if (files.length > 1) {
+      setBatchFiles(files);
+      setBatchData(null);
+      setBatchError(null);
+      setActiveTab('batch');
     }
   };
 
@@ -188,8 +259,21 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     setBatchFiles(files);
-    setBatchData(null); // Wait for explicit [ RUN BATCH INSPECTION ] click
+    setBatchData(null);
     setBatchError(null);
+  };
+
+  const handleBatchFolderUpload = (e) => {
+    const rawFiles = Array.from(e.target.files || []);
+    const files = rawFiles.filter(f => {
+      const ext = f.name.split('.').pop().toLowerCase();
+      return ['png', 'jpg', 'jpeg', 'webp'].includes(ext);
+    });
+    if (files.length > 0) {
+      setBatchFiles(files);
+      setBatchData(null);
+      setBatchError(null);
+    }
   };
 
   const handleBatchDragOver = (e) => {
@@ -204,11 +288,11 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
     setIsBatchDragging(false);
   };
 
-  const handleBatchDrop = (e) => {
+  const handleBatchDrop = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsBatchDragging(false);
-    const files = Array.from(e.dataTransfer?.files || []);
+    const files = await extractFilesFromDataTransfer(e.dataTransfer);
     if (files.length > 0) {
       setBatchFiles(files);
       setBatchData(null);
@@ -233,6 +317,35 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           throw new Error(err.detail || `Batch inspection failed (HTTP ${res.status})`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        setBatchData(data);
+        setBatchLoading(false);
+      })
+      .catch(err => {
+        setBatchError(err.message);
+        setBatchLoading(false);
+      });
+  };
+
+  const executeBatchInspectionByPath = (folderPath) => {
+    if (!folderPath || !folderPath.trim()) return;
+    setBatchLoading(true);
+    setBatchError(null);
+
+    const formData = new FormData();
+    formData.append('folder_path', folderPath.trim());
+
+    fetch('/api/vision/inspect-batch', {
+      method: 'POST',
+      body: formData
+    })
+      .then(async res => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || `Folder batch inspection failed (HTTP ${res.status})`);
         }
         return res.json();
       })
@@ -616,6 +729,15 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
                 onChange={handleSingleFileUpload}
                 className="hidden"
               />
+              <input
+                type="file"
+                ref={folderInputRef}
+                webkitdirectory=""
+                directory=""
+                multiple
+                onChange={handleFolderUpload}
+                className="hidden"
+              />
 
               {/* Scanner Line Effect when Dragging */}
               {isDragging && (
@@ -634,14 +756,14 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
 
                 <div className="space-y-1.5">
                   <div className="text-lg sm:text-xl font-extrabold tracking-tight text-white uppercase font-sans">
-                    {isDragging ? 'RELEASE TO LOAD SPECIMEN' : 'DROP YOUR SPECIMEN HERE'}
+                    {isDragging ? 'RELEASE TO LOAD SPECIMEN OR FOLDER' : 'DROP SPECIMEN OR FOLDER HERE'}
                   </div>
                   <p className="text-xs text-slate-400 font-sans leading-relaxed">
-                    Upload any industrial surface image to trigger live PyTorch analysis, Grad-CAM attention, and calibrated decision policy.
+                    Upload any industrial surface image or complete specimen folder (up to 500MB) to trigger live PyTorch analysis, Grad-CAM attention, and calibrated decision policy.
                   </p>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -653,10 +775,49 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
                     <FileImage className="w-4 h-4" />
                     <span>SELECT SPECIMEN</span>
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      folderInputRef.current && folderInputRef.current.click();
+                    }}
+                    className="px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.10] text-white font-sans font-bold text-xs sm:text-sm tracking-wide transition-all border border-white/15 hover:border-sky-400/40 flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 shadow-sm"
+                  >
+                    <Folder className="w-4 h-4 text-sky-400" />
+                    <span>SELECT FOLDER</span>
+                  </button>
                 </div>
 
                 <div className="text-[11px] font-mono text-slate-500 pt-1">
-                  Supported: PNG • JPG • JPEG • WEBP (Up to 15MB)
+                  Supported: PNG • JPG • JPEG • WEBP • Single Images or Folders (Up to 500MB)
+                </div>
+
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block w-full text-center">
+                    or quick-test with benchmark specimens:
+                  </span>
+                  {[
+                    { id: 'crack_test_sample_1.png', label: 'Surface Crack', color: 'rose' },
+                    { id: 'hole_test_sample_1.png', label: 'Hole / Perforation', color: 'amber' },
+                    { id: 'normal_test_sample_1.png', label: 'Normal (Clean)', color: 'emerald' },
+                    { id: 'rust_test_sample_1.png', label: 'Surface Rust', color: 'orange' },
+                    { id: 'scratch_test_sample_1.png', label: 'Deep Scratch', color: 'purple' },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        selectSample(s.id, 'primary', singleThreshold, `/assets/organizer_test_gallery/${s.id}`);
+                        runInspection(null, s.id, 'primary', singleThreshold);
+                      }}
+                      className="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08] transition flex items-center gap-1 cursor-pointer hover:border-sky-400/40"
+                    >
+                      <Sparkles className="w-2.5 h-2.5 text-sky-400" />
+                      <span>{s.label}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -1162,6 +1323,15 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
                 onChange={handleBatchFilesSelected}
                 className="hidden"
               />
+              <input
+                type="file"
+                ref={batchFolderInputRef}
+                webkitdirectory=""
+                directory=""
+                multiple
+                onChange={handleBatchFolderUpload}
+                className="hidden"
+              />
               <div className="flex flex-col items-center justify-center space-y-3">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition ${
                   isBatchDragging ? 'bg-emerald-500/30 text-emerald-300' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
@@ -1170,26 +1340,66 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
                 </div>
                 <div className="space-y-1">
                   <div className="text-sm sm:text-base font-mono font-black text-white uppercase tracking-wider">
-                    {isBatchDragging ? 'RELEASE TO DROP BATCH IMAGES' : 'DROP MULTIPLE IMAGES HERE'}
+                    {isBatchDragging ? 'RELEASE TO DROP BATCH IMAGES OR FOLDER' : 'DROP MULTIPLE IMAGES OR FOLDER HERE'}
                   </div>
                   <div className="text-xs font-mono text-slate-400">or</div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    batchFileInputRef.current && batchFileInputRef.current.click();
-                  }}
-                  className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer"
-                >
-                  <Layers className="w-4 h-4" />
-                  <span>SELECT MULTIPLE IMAGES</span>
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      batchFileInputRef.current && batchFileInputRef.current.click();
+                    }}
+                    className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer"
+                  >
+                    <Layers className="w-4 h-4" />
+                    <span>SELECT MULTIPLE IMAGES</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      batchFolderInputRef.current && batchFolderInputRef.current.click();
+                    }}
+                    className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-xs uppercase tracking-wider transition shadow-lg flex items-center gap-2 cursor-pointer"
+                  >
+                    <Folder className="w-4 h-4 text-emerald-400" />
+                    <span>SELECT FOLDER</span>
+                  </button>
+                </div>
 
                 <div className="text-[11px] font-mono text-slate-400 pt-1">
-                  Select any number of PNG • JPG • JPEG • WEBP files
+                  Select any number of PNG • JPG • JPEG • WEBP files or an entire folder
                 </div>
+              </div>
+            </div>
+
+            {/* Direct Local / Server Folder Path Bar */}
+            <div className="p-4 bg-slate-900/60 rounded-xl border border-white/5 space-y-2">
+              <div className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5">
+                <Folder className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Or inspect a folder directly by local directory path:</span>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <input
+                  type="text"
+                  value={batchFolderPath}
+                  onChange={(e) => setBatchFolderPath(e.target.value)}
+                  placeholder="Enter local folder path (e.g. C:\data\production_batch_01)"
+                  className="w-full sm:flex-1 px-3 py-2 bg-slate-900 border border-white/10 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-emerald-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => executeBatchInspectionByPath(batchFolderPath)}
+                  disabled={batchLoading || !batchFolderPath.trim()}
+                  className="w-full sm:w-auto px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs font-mono transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-md shadow-emerald-500/20"
+                >
+                  {batchLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                  <span>INSPECT FOLDER PATH</span>
+                </button>
               </div>
             </div>
 
@@ -2059,7 +2269,16 @@ export default function VisualInspectionPage({ onNavigateToTab }) {
                       {sample.sample_id}
                     </span>
 
-                    <button className="mt-2 w-full py-1 rounded bg-slate-800 group-hover:bg-emerald-500 group-hover:text-slate-950 text-emerald-300 font-mono text-[10px] font-bold transition flex items-center justify-center gap-1">
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        selectSample(sample.sample_id, modelMode, singleThreshold, `/assets/organizer_test_gallery/${sample.sample_id}`);
+                        setActiveTab('single');
+                        runInspection(null, sample.sample_id, modelMode, singleThreshold);
+                      }}
+                      className="mt-2 w-full py-1 rounded bg-slate-800 group-hover:bg-emerald-500 group-hover:text-slate-950 text-emerald-300 font-mono text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                    >
                       <span>Inspect Live</span>
                       <ArrowRight className="w-3 h-3" />
                     </button>

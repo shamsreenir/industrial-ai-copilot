@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 
 const InspectionContext = createContext(null);
 
@@ -49,6 +49,10 @@ const DEFAULT_INSPECTION_STATE = {
 
 export function InspectionProvider({ children }) {
   const [inspection, setInspection] = useState(DEFAULT_INSPECTION_STATE);
+  const inspectionRef = useRef(inspection);
+  useEffect(() => {
+    inspectionRef.current = inspection;
+  }, [inspection]);
 
   // Helper to completely clear stale state when switching images
   const clearInspection = useCallback(() => {
@@ -145,33 +149,11 @@ export function InspectionProvider({ children }) {
 
   // Run visual inspection inference against backend
   const runInspection = useCallback(async (customFile = null, customSpecimen = null, customMode = null, customThreshold = null) => {
-    let targetFile = customFile;
-    let targetSpecimen = customSpecimen;
-    let targetMode = customMode;
-    let targetThreshold = customThreshold;
-
-    // Use current inspection if arguments are omitted
-    setInspection(prev => {
-      targetFile = targetFile !== null ? targetFile : prev.file;
-      targetSpecimen = targetSpecimen !== null ? targetSpecimen : prev.specimenId;
-      targetMode = targetMode !== null ? targetMode : prev.modelMode;
-      targetThreshold = targetThreshold !== null ? targetThreshold : prev.threshold;
-      
-      return {
-        ...prev,
-        status: 'LOADING',
-        error: null,
-        // Reset previous execution results on re-run
-        result: null,
-        predictedClass: null,
-        calibratedConfidence: null,
-        heatmapUri: null,
-        robustnessStatus: 'IDLE',
-        robustnessResult: null,
-        robustnessError: null,
-        operatorDecision: null,
-      };
-    });
+    const current = inspectionRef.current;
+    const targetFile = customFile !== null ? customFile : current.file;
+    const targetSpecimen = customSpecimen !== null ? customSpecimen : current.specimenId;
+    const targetMode = customMode !== null ? customMode : (current.modelMode || 'primary');
+    const targetThreshold = customThreshold !== null ? customThreshold : (current.threshold ?? 0.85);
 
     if (!targetFile && !targetSpecimen) {
       setInspection(prev => ({
@@ -181,6 +163,20 @@ export function InspectionProvider({ children }) {
       }));
       return;
     }
+
+    setInspection(prev => ({
+      ...prev,
+      status: 'LOADING',
+      error: null,
+      result: null,
+      predictedClass: null,
+      calibratedConfidence: null,
+      heatmapUri: null,
+      robustnessStatus: 'IDLE',
+      robustnessResult: null,
+      robustnessError: null,
+      operatorDecision: null,
+    }));
 
     try {
       const formData = new FormData();
@@ -227,7 +223,7 @@ export function InspectionProvider({ children }) {
         status: 'SUCCESS',
         error: null,
         result: data,
-        specimenId: data.specimen_id || prev.specimenId,
+        specimenId: data.specimen_id || targetSpecimen || prev.specimenId,
         predictedClass: topCls,
         displayLabel: topCls.toUpperCase(),
         calibratedConfidence: conf,
@@ -262,21 +258,10 @@ export function InspectionProvider({ children }) {
 
   // Run optical robustness testing against active inspection
   const runRobustness = useCallback(async () => {
-    let activeFile = null;
-    let activeSpecimen = null;
-    let activeMode = 'primary';
-
-    setInspection(prev => {
-      activeFile = prev.file;
-      activeSpecimen = prev.specimenId;
-      activeMode = prev.modelMode || 'primary';
-
-      return {
-        ...prev,
-        robustnessStatus: 'LOADING',
-        robustnessError: null,
-      };
-    });
+    const current = inspectionRef.current;
+    const activeFile = current.file;
+    const activeSpecimen = current.specimenId;
+    const activeMode = current.modelMode || 'primary';
 
     if (!activeFile && !activeSpecimen) {
       setInspection(prev => ({
@@ -286,6 +271,12 @@ export function InspectionProvider({ children }) {
       }));
       return;
     }
+
+    setInspection(prev => ({
+      ...prev,
+      robustnessStatus: 'LOADING',
+      robustnessError: null,
+    }));
 
     try {
       const formData = new FormData();
@@ -329,11 +320,8 @@ export function InspectionProvider({ children }) {
 
   // Submit human operator triage decision
   const logOperatorDecision = useCallback(async (action, notes = '') => {
-    let itemId = null;
-    setInspection(prev => {
-      itemId = prev.specimenId || (prev.file ? prev.file.name : 'active_specimen');
-      return prev;
-    });
+    const current = inspectionRef.current;
+    const itemId = current.specimenId || (current.file ? current.file.name : 'active_specimen');
 
     try {
       const res = await fetch('/api/vision/operator-decision', {

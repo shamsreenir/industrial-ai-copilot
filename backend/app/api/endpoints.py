@@ -214,6 +214,7 @@ import cv2
 import numpy as np
 import io
 from PIL import Image
+Image.MAX_IMAGE_PIXELS = None
 from ..services.inspection_model import inspection_model, ASSETS_DIR, METRICS_PATH, TEST_SAMPLES_DIR
 from ..services.robustness_service import robustness_service
 from ..services.monitoring_service import monitoring_service
@@ -283,8 +284,8 @@ async def inspect_vision_image(
             if ext not in ALLOWED_EXTENSIONS:
                 raise HTTPException(status_code=400, detail=f"Unsupported file format '{ext}'. Allowed: JPG, JPEG, PNG, WEBP.")
             contents = await file.read()
-            if len(contents) > 15 * 1024 * 1024:
-                raise HTTPException(status_code=400, detail="Image file exceeds 15MB size limit.")
+            if len(contents) > 500 * 1024 * 1024:
+                raise HTTPException(status_code=400, detail="Image file exceeds 500MB size limit.")
             try:
                 pil_img = Image.open(io.BytesIO(contents)).convert("RGB")
             except Exception:
@@ -354,8 +355,8 @@ async def inspect_vision_image(
         if ext not in ALLOWED_EXTENSIONS:
             raise HTTPException(status_code=400, detail=f"Unsupported file format '{ext}'. Allowed: JPG, JPEG, PNG, WEBP.")
         contents = await file.read()
-        if len(contents) > 15 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="Image exceeds 15MB limit.")
+        if len(contents) > 500 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Image exceeds 500MB limit.")
         try:
             test_pil = Image.open(io.BytesIO(contents))
             test_pil.verify()
@@ -416,24 +417,41 @@ async def inspect_vision_image(
     return res
 
 @router.post("/vision/inspect-batch", response_model=BatchInspectionSummaryResponse)
-async def inspect_batch_images(files: List[UploadFile] = File(...)):
+async def inspect_batch_images(
+    files: Optional[List[UploadFile]] = File(default=None),
+    folder_path: Optional[str] = Form(default=None)
+):
     """
-    Executes dynamic batch inspection across multiple user-uploaded images.
+    Executes dynamic batch inspection across multiple user-uploaded images or an entire local folder.
     Returns rollup KPIs, defect breakdown, per-image records, and the Human Scrutiny Queue.
     """
-    if not files:
-        raise HTTPException(status_code=400, detail="No files provided for batch inspection.")
-    
     file_tuples = []
-    for f in files:
-        fname = f.filename.lower()
-        _, ext = os.path.splitext(fname)
-        if ext in ALLOWED_EXTENSIONS:
-            contents = await f.read()
-            file_tuples.append((f.filename, contents))
+    
+    if folder_path and os.path.exists(folder_path) and os.path.isdir(folder_path):
+        for root, _, fnames in os.walk(folder_path):
+            for fname in sorted(fnames):
+                _, ext = os.path.splitext(fname.lower())
+                if ext in ALLOWED_EXTENSIONS:
+                    fpath = os.path.join(root, fname)
+                    try:
+                        with open(fpath, "rb") as f:
+                            file_tuples.append((fname, f.read()))
+                    except Exception:
+                        continue
+                    if len(file_tuples) >= 500:
+                        break
+            if len(file_tuples) >= 500:
+                break
+    elif files:
+        for f in files:
+            fname = f.filename.lower()
+            _, ext = os.path.splitext(fname)
+            if ext in ALLOWED_EXTENSIONS:
+                contents = await f.read()
+                file_tuples.append((f.filename, contents))
 
     if not file_tuples:
-        raise HTTPException(status_code=400, detail="No valid image files (JPG, PNG, WEBP) detected.")
+        raise HTTPException(status_code=400, detail="No valid image files (JPG, PNG, WEBP) detected in input.")
 
     return organizer_vision_service.predict_batch(file_tuples)
 
